@@ -1,8 +1,7 @@
-import sbt._
-import Keys._
+import sbt.*
 
 object Dependencies {
-  val resolvers = Seq(
+  val resolvers: Seq[MavenRepository] = Seq(
     "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
   )
 

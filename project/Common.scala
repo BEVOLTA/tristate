@@ -4,11 +4,22 @@ import sbt.Keys.*
 
 object Common {
 
+  val credentialsVal: Seq[Credentials] = {
+    val realm    = "GitHub Package Registry"
+    val host     = "maven.pkg.github.com"
+    val cred = for {
+      username <- scala.util.Try(sys.env("GITHUB_ACTOR")).toOption.orElse(Some("fabienfoerster"))
+      password <- scala.util.Try(sys.env("GITHUB_TOKEN")).toOption
+    } yield Credentials(realm, host, username, password)
+    cred.toList
+  }
 
+  println("Credentials",credentialsVal)
+  println("Env : ", sys.env)
 
   val commonSettings: Seq[Setting[?]] = Seq(
     scalaVersion := "3.3.1",
-
+    version := "0.5.0",
     scalacOptions ++=  Seq(
       "-deprecation",
       "-encoding", "UTF-8",
@@ -29,19 +40,29 @@ object Common {
     autoAPIMappings := true,
 
     // Release options
-    publishTo       := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging),
-    organization    := "org.davidbild",
-    pomPostProcess  := pomPostProcessVal,
-    credentials    ++= credentialsVal,
-
-    licenses         += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage         := Some(url("https://github.com/drbild/tristate")),
-    scmInfo          := Some(ScmInfo(url("https://github.com/drbild/tristate.git"), "scm:git:git@github.com:drbild/tristate.git")),
-    developers       := List(Developer(id="drbild", name="David R. Bild", email="david@davidbild.org", url=url("https://github.com/drbild"))),
-
-    // keep headers updated
-    organizationName := "David R. Bild",
-    startYear        := Some(2016),
+    pomExtra :=
+      <url>https://github.com/bevolta/tristate</url>
+        <licenses>
+          <license>
+            <name>MIT</name>
+            <url>http://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+          </license>
+        </licenses>
+        <developers>
+          <developer>
+            <id>fabienfoerster</id>
+            <name>Fabien Foerster</name>
+          </developer>
+        </developers>,
+    publishTo := Some("GitHub Package Registry" at "https://maven.pkg.github.com/bevolta/tristate"),
+    credentials ++= credentialsVal,
+    publishMavenStyle      := true,
+    versionScheme := Some("early-semver"),
+    Test / publishArtifact := false,
+    pomIncludeRepository := { _ =>
+      false
+    }
 
   )
 
@@ -56,15 +77,7 @@ object Common {
     new RuleTransformer(stripTestScope).transform(node)(0)
   }
 
-  val credentialsVal: Seq[Credentials] = {
-    val realm    = "Sonatype Nexus Repository Manager"
-    val host     = "oss.sonatype.org"
-    val cred = for {
-      username <- scala.util.Try(sys.env("NEXUS_USERNAME")).toOption
-      password <- scala.util.Try(sys.env("NEXUS_PASSWORD")).toOption
-    } yield Credentials(realm, host, username, password)
-    cred.toList
-  }
+
 
 }
 
