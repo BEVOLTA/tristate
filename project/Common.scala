@@ -18,8 +18,9 @@ object Common {
   println("Env : ", sys.env)
 
   val commonSettings: Seq[Setting[?]] = Seq(
+    organization := "com.bevolta",
+    version := "0.5.1",
     scalaVersion := "3.3.1",
-    version := "0.5.0",
     scalacOptions ++=  Seq(
       "-deprecation",
       "-encoding", "UTF-8",
